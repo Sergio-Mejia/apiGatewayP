@@ -138,6 +138,44 @@ def getPrecio():
 def deletePrecio():
     return jsonify(executeRequests())
 
+
+@app.route("/peso/create", methods=["POST"])
+def pesoCreate():
+    """Crear Fruta"""
+    return jsonify(executeRequests())
+
+@app.route("/peso/update", methods=["PATCH"])
+def updatePeso():
+    return jsonify(executeRequests())
+
+@app.route("/peso/get", methods=["GET"])
+def getPeso():
+    return jsonify(executeRequests())
+
+@app.route("/peso/delete", methods=["DELETE"])
+def deletePeso():
+    return jsonify(executeRequests())
+
+
+
+@app.route("/pedido/create", methods=["POST"])
+def pedidoCreate():
+    """Crear Fruta"""
+    return jsonify(executeRequests())
+
+@app.route("/pedido/update", methods=["PATCH"])
+def updatePedido():
+    return jsonify(executeRequests())
+
+@app.route("/pedido/get", methods=["GET"])
+def getPedido():
+    return jsonify(executeRequests())
+
+@app.route("/pedido/delete", methods=["DELETE"])
+def deletePedido():
+    return jsonify(executeRequests())
+
+
 @app.route("/",methods=['GET'])
 def test():
     json = {}
