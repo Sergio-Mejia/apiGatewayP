@@ -43,6 +43,9 @@ def before_request_callback():
     if excludedRoutes.__contains__(request.path):
         print("ruta excluida ", request.path)
         pass
+    elif request.path == "/usuarios" and request.method in ['POST']:
+        print("ruta excluida signup", request.path)
+        pass
     elif verify_jwt_in_request():
         usuario = get_jwt_identity()
         if usuario["idRol"]is not None:
@@ -74,113 +77,134 @@ def validarPermiso(endPoint: str, metodo: str, idRol: str) -> bool:
         pass
     return tienePermiso
 
-def executeRequests():
-    """Ejecuta el request"""
+def executeRequests(origen: str) -> dict:
+    if origen == "pulpas":
+        url = dataConfig["url-backend-pulpas"] + request.path
+    else:
+        url = dataConfig["url-backend-security"] + request.path
 
-    headers = {"Content-Type": "application/json; charset=utf-8"}
-    url = dataConfig["url-backend-pulpas"] + request.path
+    data = None
     try:
         data = request.json
     except:
-        data = None
+        pass
+
     if request.method == "GET":
-        response = requests.get(url, headers=headers, json=data)
+        response = requests.get(url, json=data)
     elif request.method == "POST":
-        response = requests.post(url, headers=headers, json=data)
-    elif request.method == 'PUT':
-        response = requests.put(url, headers=headers, json=data)
+        response = requests.post(url, json=data)
+    elif request.method == "PUT":
+        response = requests.put(url, json=data)
     elif request.method == "PATCH":
-        response = requests.patch(url, headers=headers, json=data)
+        response = requests.patch(url, json=data)
     elif request.method == "DELETE":
-        response = requests.delete(url, headers=headers, json=data)
+        response = requests.delete(url, json=data)
     else:
         abort(make_response("Metodo NO disponible", 405))
 
-    return response.json()
+    if response.status_code == 204:
+        return abort(make_response("Borrado", 204))
+    else:
+        response_msg = response.json()
+        try:
+            if response_msg.get("code"):
+                response_code = response_msg.get("code")
+            else:
+                response_code = response.status_code
+        except:
+            response_code = response.status_code
+        response = make_response(response_msg, response_code)
+        return response
 
 
 @app.route("/consulta/get_pedido_fruta", methods=["GET"])  # noqa: 501
 def getResultados():
     """Obtener Resultados"""
-    return jsonify(executeRequests())
+    return executeRequests("pulpas")
 
 @app.route("/fruta/create", methods=["POST"])
 def frutaCreate():
     """Crear Fruta"""
-    return jsonify(executeRequests())
+    return executeRequests("pulpas")
 
 @app.route("/fruta/update", methods=["PATCH"])
 def updateFruta():
-    return jsonify(executeRequests())
+    return executeRequests("pulpas")
 
 @app.route("/fruta/get", methods=["GET"])
 def getFruta():
-    return jsonify(executeRequests())
+    return executeRequests("pulpas")
 
 @app.route("/fruta/delete", methods=["DELETE"])
 def deleteFruta():
-    return jsonify(executeRequests())
+    return executeRequests("pulpas")
 
 @app.route("/precio/create", methods=["POST"])
 def precioCreate():
     """Crear Fruta"""
-    return jsonify(executeRequests())
+    return executeRequests("pulpas")
 
 @app.route("/precio/update", methods=["PATCH"])
 def updatePrecio():
-    return jsonify(executeRequests())
+    return executeRequests("pulpas")
 
 @app.route("/precio/get", methods=["GET"])
 def getPrecio():
-    return jsonify(executeRequests())
+    return executeRequests("pulpas")
 
 @app.route("/precio/delete", methods=["DELETE"])
 def deletePrecio():
-    return jsonify(executeRequests())
+    return executeRequests("pulpas")
 
 
 @app.route("/peso/create", methods=["POST"])
 def pesoCreate():
     """Crear Fruta"""
-    return jsonify(executeRequests())
+    return executeRequests("pulpas")
 
 @app.route("/peso/update", methods=["PATCH"])
 def updatePeso():
-    return jsonify(executeRequests())
+    return executeRequests("pulpas")
 
 @app.route("/peso/get", methods=["GET"])
 def getPeso():
-    return jsonify(executeRequests())
+    return executeRequests("pulpas")
 
 @app.route("/peso/delete", methods=["DELETE"])
 def deletePeso():
-    return jsonify(executeRequests())
+    return executeRequests("pulpas")
 
 
 
 @app.route("/pedido/create", methods=["POST"])
 def pedidoCreate():
     """Crear Fruta"""
-    return jsonify(executeRequests())
+    return executeRequests("pulpas")
 
 @app.route("/pedido/update", methods=["PATCH"])
 def updatePedido():
-    return jsonify(executeRequests())
+    return executeRequests("pulpas")
 
 @app.route("/pedido/get", methods=["GET"])
 def getPedido():
-    return jsonify(executeRequests())
+    return executeRequests("pulpas")
 
 @app.route("/pedido/delete", methods=["DELETE"])
 def deletePedido():
-    return jsonify(executeRequests())
+    return executeRequests("pulpas")
 
+@app.route("/usuarios", methods=['POST', 'PATCH', 'GET', 'DELETE'])
+def usuario():
+    if request.method == 'PATCH' and request.json.get("password") == "":
+        abort(make_response("Se debe Incluir Contraseña", 422))
+    return executeRequests("security")
 
 @app.route("/",methods=['GET'])
 def test():
     json = {}
     json["message"]="Server running ..."
     return jsonify(json)
+
 
 
 def loadFileConfig():
