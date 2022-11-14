@@ -117,8 +117,8 @@ def executeRequests(origen: str) -> dict:
         return response
 
 
-@app.route("/consulta/get_pedido_fruta", methods=["GET"])  # noqa: 501
-def getResultados():
+@app.route("/consulta/<any('get_pedido_fruta', 'suma_total'):segment>", methods=["GET"])  # noqa: 501
+def getResultados(segment):
     """Obtener Resultados"""
     return executeRequests("pulpas")
 
