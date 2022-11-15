@@ -88,6 +88,14 @@ def executeRequests(origen: str) -> dict:
         data = request.json
     except:
         pass
+    if len(request.args) >= 1:
+        url = url + '?'
+        k = 0
+        for key in request.args.keys():
+            if k > 0:
+                url = url + "&"
+            url = url + key + "=" + request.args[key]
+            k = k + 1
 
     if request.method == "GET":
         response = requests.get(url, json=data)
